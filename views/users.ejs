@@ -38,16 +38,22 @@
             </tr>
           </thead>
           <tbody id="users-table">
-            <tr id="">
-              <td class="name">
-                <img src="./images/user1.png" />
-                <span>User 1</span>
-              </td>
-              <td>email@email.com</td>
-              <td class="manage">
-                <img src="./images/trash.png" alt="Delete" />
-              </td>
-            </tr>
+            <% users.forEach(function(user) { %>
+              <tr id="<%= user._id %>">
+                <td class="name">
+                  <% if (user.avatar) { %>
+                    <img src="./uploads/avatars/<%= user.avatar %>" />
+                  <% } else { %>
+                    <img src="./images/nophoto.png" />
+                    <% } %>
+                  <span><%= user.name %></span>
+                </td>
+                <td><%= user.email %></td>
+                <td class="manage">
+                  <img src="./images/trash.png" alt="Delete" onclick="deleteUser('<%= user._id %>')"/>
+                </td>
+              </tr>
+            <% }); %>
           </tbody>
         </table>
       </div>
@@ -63,7 +69,7 @@
           <form id="add-user-form">
             <input type="text" placeholder="enter name" name="name" />
             <p class="error name-error"></p>
-            
+
             <input type="text" placeholder="enter email" name="email" />
             <p class="error email-error"></p>
 
@@ -87,6 +93,7 @@
         </div>
       </div>
     </div>
+    <!-- Add User -->
     <script>
       const modal = document.querySelector("#add-user-modal");
       const form = document.querySelector("#add-user-form");
@@ -148,5 +155,32 @@
         }
       };
     </script>
+
+    <!-- Delete user -->
+    <script>
+      // toasts
+      const deleteToast = Toastify({
+          text: "User was deleted successfully!",
+          duration: 3000,
+      });
+      const deleteErrorToast = Toastify({
+          text: "Could not delete the user!",
+          duration: 3000,
+      });
+      
+      // delete user function
+      async function deleteUser(userId) {
+          let response = await fetch(`/users/${userId}`, {
+              method: "DELETE",
+          });
+          let result = await response.json();
+          if (result.errors) {
+              deleteErrorToast.showToast();
+          } else {
+              deleteToast.showToast();
+              document.getElementById(userId).remove();
+          }
+      }
+  </script>
   </body>
 </html>
